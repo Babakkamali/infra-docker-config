@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+  portainer:
+    image: portainer/portainer-ce
+    ports:
+      - '9000:9000' # Portainer will be accessible on this host port
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock' # Mount the Docker socket
+      - 'portainer_data:/data' # Persist Portainer data
+
+volumes:
+  portainer_data:
