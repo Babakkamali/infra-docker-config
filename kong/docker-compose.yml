@@ -1,0 +1,73 @@
+version: '3'
+
+services:
+
+  kong-migrations:
+    image: kong:3.6-ubuntu
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-database
+      - KONG_PG_PORT=5432
+      - KONG_PG_USER=kong
+      - KONG_PG_PASSWORD=change-me
+      - KONG_PG_SSL= "off"
+      - KONG_PG_SSL_VERIFY= "off"
+    command: kong migrations bootstrap
+    restart: on-failure
+    networks:
+      - gateway-kong
+
+  kong:
+    image: kong:3.6-ubuntu
+    environment:
+      - LC_CTYPE=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-database
+      - KONG_PG_PORT=5432
+      - KONG_PG_USER=kong
+      - KONG_PG_PASSWORD=change-me
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_PROXY_LISTEN=0.0.0.0:8000
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+      - KONG_ADMIN_GUI_URL=http://localhost:8002
+      - KONG_PG_SSL= "off"
+      - KONG_PG_SSL_VERIFY= "off"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://kong:8001" ]
+      interval: 5s
+      timeout: 2s
+      retries: 15
+    ports:
+      - 8000:8000
+      - 8001:8001
+      - 8002:8002
+    restart: always
+    networks:
+      - gateway-kong
+
+  kong-database:
+    image: postgres:16-alpine3.19
+    restart: always
+    networks:
+      - "gateway-kong"
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_DB: kong
+      POSTGRES_PASSWORD: change-me
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "kong" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - "konga-database-postgres:/var/lib/postgresql/data"
+
+networks:
+  gateway-kong:
+
+volumes:
+  konga-database-postgres:
