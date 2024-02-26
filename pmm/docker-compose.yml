@@ -1,0 +1,26 @@
+version: '3.3'
+services:
+    pmm-server:
+        restart: always
+        ports:
+            - '8443:443'
+        networks:
+            - pmm-net
+        volumes:
+            - 'pmm-data:/srv'
+        container_name: pmm-server
+        image: 'percona/pmm-server:2'
+        environment:
+            - SERVER_USER=admin
+            - SERVER_PASSWORD=change-me
+            - METRICS_RETENTION=720h
+            - METRICS_MEMORY=4194304
+            - METRICS_RESOLUTION=1s
+            - QUERIES_RETENTION=30
+volumes:
+  pmm-data:
+    external: true
+
+networks:
+  pmm-net:
+    external: true
