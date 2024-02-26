@@ -1,0 +1,13 @@
+groups:
+- name: NodeDown
+  rules:
+  - alert: NodeDown
+    expr: up{job="node"} == 0
+    for: 10s
+    labels:
+      severity: critical
+      datacenter: mobin_host
+      exporter: node_exporter
+    annotations:
+      summary: At least one Node_exporter is out of response for (instance {{ $labels.instance }})
+      description: "A Prometheus target has disappeared. An exporter might be crashed.\n VALUE = {{ $value }}\n LABELS = {{ $labels }}"

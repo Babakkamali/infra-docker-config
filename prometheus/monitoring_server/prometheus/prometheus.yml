@@ -1,0 +1,119 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+      monitor: 'docker-host-alpha'
+
+# Load and evaluate rules in this file every 'evaluation_interval' seconds.
+rule_files:
+  - "alert_rules/*.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape.
+scrape_configs:
+  - job_name: 'nodeexporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['<NODE_EXPORTER_URI>:9100']
+        labels:
+          hostname: 'NODE_NAME'
+
+  - job_name: haproxy
+    static_configs:
+      - targets: ['HAPROXY_EXPORTER_URI:9101']
+        labels:
+          hostname: 'NODE_NAME'
+
+  - job_name: redis
+    static_configs:
+      - targets: ['REDIS_EXPORTER_URI:9121']
+        labels:
+          hostname: 'NODE_NAME'
+
+  - job_name: mongodb
+    static_configs:
+      - targets: ['MONGO_EXPORTER_URI:9211']
+        labels:
+          hostname: 'NODE_NAME'
+
+  - job_name: blackbox-http
+    metrics_path: /probe
+    scrape_interval: 5s
+    params:
+      module: [http_2xx]
+    static_configs:
+    - targets:
+      - https://<YOUR_FIRST_DOMAIN.COM>
+      - https://<YOUR_SECOND_DOMAIN.COM>
+
+    relabel_configs:
+    - source_labels: [__address__]
+      regex: (.*)(:80)?
+      target_label: __param_target
+    - source_labels: [__param_target]
+      regex: (.*)
+      target_label: instance
+      replacement: ${1}
+    - source_labels: []
+      regex: .*
+      target_label: __address__
+      replacement: blackbox:9115
+
+  - job_name: blackbox-icmp
+    metrics_path: /probe
+    scrape_interval: 5s
+    params:
+      module: [icmp]
+    static_configs:
+    - targets:
+      - <YOUR_DESTINATION.COM>
+      - <YOUR.IP.ADDRESS.ICMP>
+      - google.com
+      - 1.1.1.1
+      - 8.8.8.8
+
+    relabel_configs:
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      replacement: blackbox:9115
+
+  - job_name: 'cadvisor'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['YOUR_CADVISOR_EXPORTER:8081']
+        labels:
+          hostname: 'NODE_NAME'
+
+  - job_name: 'prometheus'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['localhost:9090']
+
+#  - job_name: 'pushgateway'
+#    scrape_interval: 10s
+#    honor_labels: true
+#    static_configs:
+#      - targets: ['pushgateway:9091']
+
+
+alerting:
+  alertmanagers:
+  - scheme: http
+    static_configs:
+    - targets: 
+      - 'alertmanager:9093'
+
+#  - job_name: 'nginx'
+#    scrape_interval: 10s
+#    static_configs:
+#      - targets: ['nginxexporter:9113']
+
+#  - job_name: 'aspnetcore'
+#    scrape_interval: 10s
+#    static_configs:
+#      - targets: ['eventlog-proxy:5000', 'eventlog:5000']

@@ -1,0 +1,13 @@
+groups:
+- name: NodeMemoryAlerts
+  rules:
+  - alert: HostMemoryOver90
+    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+    for: 5s
+    labels:
+      severity: critical
+      datacenter: mobin_host
+      exporter: node_exporter
+    annotations:
+      summary: Host memory over 90 (instance {{ $labels.instance }})
+      description: "Node memory is filling up (< 10% left)\n VALUE = {{ $value }}\n LABELS = {{ $labels }}"
