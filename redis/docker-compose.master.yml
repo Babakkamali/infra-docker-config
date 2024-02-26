@@ -1,0 +1,22 @@
+version: '3'
+services:
+ redis-master:
+  container_name: redis-master
+  image: redis:latest
+  restart: always
+  hostname: redis-master
+  entrypoint: redis-server --appendonly yes --requirepass $REDIS_PASSWORD --maxmemory 4096mb --maxmemory-policy allkeys-lru
+  networks:
+    - redis-network
+  ports:
+    - "6379:6379"
+  volumes:
+    - redis_master:/data
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+volumes:
+  redis_master:
+
+networks:
+  redis-network:
+    external: true
