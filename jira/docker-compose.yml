@@ -1,0 +1,49 @@
+version: '3.4'
+services:
+  jira:
+    image: haxqer/jira:9.4.14
+    container_name: jira-app
+    environment:
+      - TZ=Asia/Tehran
+      - ATL_PROXY_NAME=jira.yourdomain.com
+      - ATL_PROXY_PORT=443
+      - ATL_TOMCAT_PORT=8080
+      - ATL_TOMCAT_SCHEME="https"
+      - ATL_TOMCAT_SECURE="false"
+#      - JVM_MINIMUM_MEMORY=1g
+#      - JVM_MAXIMUM_MEMORY=12g
+#      - JVM_CODE_CACHE_ARGS='-XX:InitialCodeCacheSize=1g -XX:ReservedCodeCacheSize=8g'
+    depends_on:
+      - postgres
+    ports:
+      - "8082:8080"
+    volumes:
+      - jira-home-data:/var/jira
+      - ./server.xml:/opt/jira/conf/server.xml
+    restart: always
+    networks:
+      - jira-network-new
+
+  postgres:
+    container_name: jira_psql15
+    image: postgres:15.5-alpine3.19
+    restart: always
+    environment:
+      POSTGRES_USER: jira
+      POSTGRES_DB: jira
+      POSTGRES_PASSWORD: change-me
+    volumes:
+     - jira-psql-data:/var/lib/postgresql/data/
+    networks:
+     - jira-network-new
+
+
+networks:
+  jira-network-new:
+    external: true
+
+volumes:
+  jira-psql-data:
+    external: false
+  jira-home-data:
+    external: false
