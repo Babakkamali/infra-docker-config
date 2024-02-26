@@ -1,0 +1,45 @@
+version: '3.4'
+services:
+  confluence:
+    image: haxqer/confluence:8.5.3
+    container_name: confluence-app
+    environment:
+      - TZ=Asia/Tehran
+    #      - JVM_MINIMUM_MEMORY=1g
+    #      - JVM_MAXIMUM_MEMORY=12g
+    #      - JVM_CODE_CACHE_ARGS='-XX:InitialCodeCacheSize=1g -XX:ReservedCodeCacheSize=8g'
+    depends_on:
+      - mysql
+    ports:
+      - "8092:8090"
+    volumes:
+      - conf_data:/var/confluence
+    restart: always
+    networks:
+      - confluence-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: confluence-db
+    environment:
+      - TZ=Asia/Tehran
+      - MYSQL_DATABASE=confluence
+      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_USER=confluence
+      - MYSQL_PASSWORD=pass
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_bin', '--transaction-isolation=READ-COMMITTED', '--innodb_log_file_size=256M', '--max_allowed_packet=256M','--log_bin_trust_function_creators=1']
+    volumes:
+      - conf_mysql_data:/var/lib/mysql
+    restart: always
+    networks:
+      - confluence-network
+
+networks:
+  confluence-network:
+    driver: bridge
+
+volumes:
+  conf_data:
+    external: true
+  conf_mysql_data:
+    external: true
