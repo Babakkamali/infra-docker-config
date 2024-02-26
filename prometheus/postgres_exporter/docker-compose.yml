@@ -1,0 +1,9 @@
+version: "3"
+services:
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    container_name: postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://exporter_user:exporter_pass@postgres_host:5432/postgres?sslmode=disable"
+    ports:
+      - "9187:9187"
