@@ -21,6 +21,12 @@ services:
     - redis_slave:/data
     - /etc/timezone:/etc/timezone:ro
     - /etc/localtime:/etc/localtime:ro
+  healthcheck:
+    test: [ "CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "--raw", "get", "ping" ]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+
 volumes:
   redis_slave:
 
