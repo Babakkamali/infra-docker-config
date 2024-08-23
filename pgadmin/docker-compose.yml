@@ -4,8 +4,12 @@ services:
     container_name: pgadmin4_container
     image: dpage/pgadmin4
     restart: unless-stopped
+    volumes:
+      - pgadmin:/var/lib/pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "8080:80"
+volumes:
+  pgadmin:
