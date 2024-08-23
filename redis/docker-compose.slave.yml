@@ -5,18 +5,18 @@ services:
   image: redis:latest
   restart: always
   hostname: redis-slave
-  entrypoint: redis-server --appendonly yes --requirepass $REDIS_PASSWORD --maxmemory 4096mb --maxmemory-policy allkeys-lru --slaveof 172.24.15.25 6379 --masterauth $REDIS_PASSWORD
+  entrypoint: redis-server --appendonly yes --requirepass $REDIS_PASSWORD --maxmemory 4096mb --maxmemory-policy allkeys-lru --slaveof $REDIS_MASTER_HOST $REDIS_MASTER_PORT --masterauth $REDIS_MASTER_PASSWORD
   networks:
     - redis-network
   ports:
     - "6379:6379"
   environment:
     - REDIS_PASSWORD=${REDIS_PASSWORD}
-    - REDIS_MASTER_HOST=172.24.15.25
-    - REDIS_MASTER_PORT=6379
-    - REDIS_MASTER_PASSWORD=${REDIS_PASSWORD}
+    - REDIS_MASTER_HOST=${REDIS_MASTER_HOST}
+    - REDIS_MASTER_PORT=${REDIS_MASTER_PORT}
+    - REDIS_MASTER_PASSWORD=${REDIS_MASTER_PASSWORD}
     - REDIS_SLAVE_OF=yes
-    - REDIS_PORT=6379
+    - REDIS_PORT=${REDIS_PORT}
   volumes:
     - redis_slave:/data
     - /etc/timezone:/etc/timezone:ro

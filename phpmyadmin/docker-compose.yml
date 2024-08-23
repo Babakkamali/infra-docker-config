@@ -1,0 +1,13 @@
+services:
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: always
+    volumes:
+      - ./themes:/var/www/html/themes
+      - ./config:/etc/phpmyadmin
+    ports:
+      - "8090:80"
+    environment:
+      - PMA_HOSTS=${PMA_HOSTS}
+      - PMA_VERBOSES=${PMA_VERBOSES}
+      - PMA_PORTS=${PMA_PORTS}
